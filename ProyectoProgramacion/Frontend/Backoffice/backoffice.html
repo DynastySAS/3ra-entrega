@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <title>Panel de Administración</title>
+  <link rel="stylesheet" href="../estilos.css">
+  <script src="Js/backoffice.js" defer></script>
+</head>
+<body>
+  <header>
+    Panel de Administración
+    <button class="btn acceder-btn" onclick="cerrarSesion()" style="float:right; margin-right:20px;">Cerrar Sesión</button>
+  </header>
+
+  <nav>
+    <button class="btn" onclick="mostrar('usuarios-pendientes')">Usuarios pendientes</button>
+    <button class="btn" onclick="mostrar('pagos-pendientes')">Pagos solicitados</button>
+    <!-- futuro: trabajos / viviendas -->
+  </nav>
+
+  <main>
+    <div id="usuarios-pendientes" class="content active">
+      <h2>Usuarios pendientes</h2>
+      <div id="usuarios"></div>
+    </div>
+
+    <div id="pagos-pendientes" class="content">
+      <h2>Pagos solicitados</h2>
+      <div id="pagos"></div>
+    </div>
+  </main>
+
+  <footer>
+    &copy; 2025 MiTecho - Todos los derechos reservados.
+  </footer>
+</body>
+</html>
