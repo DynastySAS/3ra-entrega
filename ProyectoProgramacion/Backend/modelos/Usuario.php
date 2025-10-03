@@ -120,8 +120,15 @@ class Usuario {
             return $stmt->execute();
         }
     
-
-    // Borrar usuario
+public function getPendientes() {
+    $sql = "SELECT id_usuario, id_persona, nombre, apellido, email_cont, telefono_cont, 
+                   usuario_login, estado, rol 
+            FROM $this->table
+            WHERE estado = 'solicitado'";
+    $result = $this->conn->query($sql);
+    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+}   
+    
     // Borrar usuario
 public function delete($id) {
     $sql = "DELETE FROM usuario WHERE id_usuario = ?";

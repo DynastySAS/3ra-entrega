@@ -5,7 +5,7 @@ class PagoController {
     private $db;
     public function __construct($db) { $this->db = $db; }
 
-    // POST /cooperativa.php?action=pago
+    
     public function create($input) {
         $pago = new Pago($this->db);
         $pago->tipo_pago = $input->tipo_pago ?? '';
@@ -19,14 +19,14 @@ class PagoController {
         ]);
     }
 
-    // GET 
+     
     public function index() {
         $pago = new Pago($this->db);
-        $data = $pago->getAll();
+        $data = $pago->getPendientes();
         echo json_encode(["success" => true, "data" => $data]);
     }
 
-    // GET 
+     
     public function show($id) {
         $pago = new Pago($this->db);
         $data = $pago->getById($id);
@@ -38,7 +38,7 @@ class PagoController {
         }
     }
 
-    // PUT 
+     
     public function aprobar($id) {
         $pago = new Pago($this->db);
         $ok = $pago->aprobar($id);
@@ -48,16 +48,9 @@ class PagoController {
         ]);
     }
 
-    // DELETE /cooperativa.php?action=pago
-    public function delete($input) {
-        if (empty($input->id_pago)) {
-            http_response_code(400);
-            echo json_encode(["success" => false, "message" => "Falta ID"]);
-            return;
-        }
-
+    public function delete($id) {
         $pago = new Pago($this->db);
-        $ok = $pago->delete($input->id_pago);
+        $ok = $pago->delete($id);
         echo json_encode([
             "success" => $ok,
             "message" => $ok ? "Pago eliminado" : "Error al eliminar pago"

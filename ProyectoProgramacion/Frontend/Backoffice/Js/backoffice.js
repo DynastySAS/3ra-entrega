@@ -12,7 +12,7 @@ function mostrar(id) {
 // === Listar usuarios pendientes ===
 async function cargarUsuarios() {
   try {
-    const res = await fetch(`${API_URL}?action=usuario`);
+    const res = await fetch(`${API_URL}/usuarios`, { method: "GET" });
     const data = await res.json();
     const contenedor = document.getElementById("usuarios");
     contenedor.innerHTML = "";
@@ -33,9 +33,9 @@ async function cargarUsuarios() {
     <p><b>Usuario:<b/> ${usuario.usuario_login}</p>
     <p><b>Estado:</b> ${usuario.estado}</p>
     <button class="btn" onclick="aprobarUsuario(${usuario.id_usuario})">
-      ✅ Aprobar
+      Aprobar
     </button>
-    <button class="btn" onclick="eliminarUsuario(${usuario.id_usuario})">
+    <button class="eliminar" onclick="eliminarUsuario(${usuario.id_usuario})">
      Eliminar
     </button>
   </div>
@@ -51,7 +51,7 @@ async function cargarUsuarios() {
 // === Listar pagos pendientes ===
 async function cargarPagos() {
   try {
-    const res = await fetch(`${API_URL}?action=pago`);
+    const res = await fetch(`${API_URL}/pagos`, { method: "GET" });
     const data = await res.json();
     const contenedor = document.getElementById("pagos");
     contenedor.innerHTML = "";
@@ -72,7 +72,10 @@ async function cargarPagos() {
     <p><b>Usuario:</b> ${pago.id_usuario}</p>
     <p><b>Estado:</b> ${pago.estado}</p>
     <button class="btn" onclick="aprobarPago(${pago.id_pago})">
-      ✅ Aprobar
+      Aprobar
+    </button>
+    <button class="eliminar" onclick="rechazarPago(${pago.id_pago})">
+      Rechazar
     </button>
   </div>
         `;
@@ -86,42 +89,45 @@ async function cargarPagos() {
 
 // === Aprobar usuario ===
 async function aprobarUsuario(id) {
-  try {
-    const res = await fetch(`${API_URL}?action=usuario&id=${id}`, {
-      method: "PUT",
-    });
-    const data = await res.json();
-    alert(data.message);
-    cargarUsuarios();
-  } catch (err) {
-    console.error("Error aprobando usuario:", err);
-  }
+  const res = await fetch(`${API_URL}/usuarios/${id}`, {
+    method: "PUT"
+  });
+  const data = await res.json();
+  alert(data.message);
+  cargarUsuarios();
 }
 
-// Eliminar Usuario
+
+// ===Eliminar Usuario===
 async function eliminarUsuario(id) {
-  try {
-    const res = await fetch(`${API_URL}?action=usuario&id=${id}`, {
-      method: "DELETE",
-    });
-    const data = await res.json();
-    alert(data.message);
-    cargarUsuarios();
-  } catch (err) {
-    console.error("Error eliminando usuario:", err);
-  }
+  const res = await fetch(`${API_URL}/usuarios/${id}`, {
+    method: "DELETE"
+  });
+  const data = await res.json();
+  alert(data.message);
+  cargarUsuarios();
 }
+
 
 // === Aprobar pago ===
 async function aprobarPago(id) {
-  const res = await fetch(`${API_URL}?action=pago&id=${id}`, {
-    method: "PUT",
+  const res = await fetch(`${API_URL}/pagos/${id}`, {
+    method: "PUT"
   });
   const data = await res.json();
   alert(data.message);
   cargarPagos();
 }
 
+// ===Rechazar pago===
+async function rechazarPago(id) {
+  const res = await fetch(`${API_URL}/pagos/${id}`, {
+    method: "DELETE"
+  });
+  const data = await res.json();
+  alert(data.message);
+  cargarPagos();
+}
 
 
 // === Simulación de cierre de sesión ===

@@ -48,6 +48,12 @@ class Pago {
         return $stmt->get_result()->fetch_assoc();
     }
 
+    public function getPendientes() {
+        $query = "SELECT * FROM {$this->table_name} WHERE estado = 'solicitado'";
+        $result = $this->conn->query($query);
+        return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
+    }
+
     public function delete($id_pago) {
         $query = "DELETE FROM {$this->table_name} WHERE id_pago=?";
         $stmt = $this->conn->prepare($query);

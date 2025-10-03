@@ -8,7 +8,7 @@ class UsuarioController {
     // Listar todos
     public function index() {
     $usuario = new Usuario($this->db);
-    $data = $usuario->getAll();
+    $data = $usuario->getPendientes();
     echo json_encode(["success" => true, "data" => $data]);
 }
 
@@ -105,6 +105,4 @@ class UsuarioController {
         echo json_encode(["success" => false, "message" => "Error eliminando usuario"]);
     }
 }
-
-
 }
