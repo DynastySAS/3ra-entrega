@@ -15,7 +15,7 @@ class Trabajo {
         $this->conn = $db;
     }
 
-    public function read() {
+    public function getAll() {
         $query = "SELECT * FROM " . $this->table_name;
         return $this->conn->query($query);
     }
@@ -57,10 +57,10 @@ class Trabajo {
         return $stmt->execute();
     }
 
-    public function delete() {
-        $query = "DELETE FROM " . $this->table_name . " WHERE id_registro=?";
+    public function delete($id) {
+        $query = "DELETE FROM $this->table_name WHERE id_registro=?";
         $stmt = $this->conn->prepare($query);
-        $stmt->bind_param("i", $this->id_registro);
+        $stmt->bind_param("i", $id);
         return $stmt->execute();
     }
 }

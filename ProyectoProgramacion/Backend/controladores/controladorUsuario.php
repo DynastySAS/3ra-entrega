@@ -8,7 +8,7 @@ class UsuarioController {
     // Listar todos
     public function index() {
     $usuario = new Usuario($this->db);
-    $data = $usuario->getPendientes();
+    $data = $usuario->getAll();
     echo json_encode(["success" => true, "data" => $data]);
 }
 
@@ -56,7 +56,6 @@ class UsuarioController {
                 return;
             }
         }
-
         $usuario = new Usuario($this->db);
         $ok = $usuario->create($input);
 
@@ -68,12 +67,6 @@ class UsuarioController {
 
     // Actualizar usuario
     public function update($input) {
-        if (empty($input->id_usuario)) { 
-            http_response_code(400);
-            echo json_encode(["success" => false, "message" => "Falta ID de usuario"]);
-            return;
-        }
-
         $usuario = new Usuario($this->db);
         $ok = $usuario->update($input);
 
@@ -87,6 +80,16 @@ class UsuarioController {
     public function aprobar($id) {
         $usuario = new Usuario($this->db);
         $ok = $usuario->aprobar($id);
+        echo json_encode([
+            "success" => $ok,
+            "message" => $ok ? "Usuario aprobado" : "Error al aprobar usuario"
+        ]);
+    }
+
+    // Aprobar pago inicial
+    public function pagoInicial($id){
+        $usuario = new Usuario($this->db);
+        $ok = $usuario->pagoInicial($id);
         echo json_encode([
             "success" => $ok,
             "message" => $ok ? "Usuario aprobado" : "Error al aprobar usuario"

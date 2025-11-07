@@ -10,12 +10,20 @@ class ViviendaController {
 
     public function index() {
         $vivienda = new Vivienda($this->db);
-        $result = $vivienda->read();
-        $data = [];
-        while ($row = $result->fetch_assoc()) {
-            $data[] = $row;
+        $data = $vivienda->getAll();
+        echo json_encode(["success" => true, "data" => $data]);
+    }
+
+
+    public function show($id) {
+        $vivienda = new Vivienda($this->db);
+        $data = $vivienda->show($id);
+        if ($data) {
+            echo json_encode(["success" => true, "data" => $data]);
+        } else {
+            http_response_code(404);
+            echo json_encode(["success" => false, "message" => "Vivienda no encontrada"]);
         }
-        echo json_encode($data);
     }
 
     public function store($input) {
@@ -29,19 +37,37 @@ class ViviendaController {
     }
 
     public function update($input) {
+        if (empty($input->id_vivienda)) { 
+            http_response_code(400);
+            echo json_encode(["success" => false, "message" => "Falta ID de la vivienda"]);
+            return;
+        }
         $vivienda = new Vivienda($this->db);
-        $vivienda->id_vivienda = $input->id_vivienda;
-        $vivienda->calle       = $input->calle;
-        $vivienda->estado      = $input->estado;
-        $vivienda->nro_apt     = $input->nro_apt;
-        $vivienda->nro_puerta  = $input->nro_puerta;
+        $ok = $vivienda->update($input);
 
-        echo json_encode(["success" => $vivienda->update()]);
+        echo json_encode([
+            "success" => $ok,
+            "message" => $ok ? "Vivienda actualizada" : "Error al actualizar vivienda"
+        ]);
     }
 
-    public function delete($input) {
+    public function getByUser($id) {
+    $vivienda = new Vivienda($this->db);
+    $data = $vivienda->getByUser($id );
+    if ($data) {
+            echo json_encode(["success" => true, "data" => $data]);
+        } else {
+            http_response_code(404);
+            echo json_encode(["success" => false, "message" => "Vivienda no encontrado"]);
+        }
+    }   
+
+    public function delete($id) {
         $vivienda = new Vivienda($this->db);
-        $vivienda->id_vivienda = $input->id_vivienda;
-        echo json_encode(["success" => $vivienda->delete()]);
+        $ok = $vivienda->delete($id);
+        echo json_encode([
+            "success" => $ok,
+            "message" => $ok ? "Vivienda eliminada" : "Error al eliminar vivienda"
+        ]);
     }
 }

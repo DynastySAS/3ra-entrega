@@ -19,11 +19,12 @@ $controller = new UsuarioController($db);
 
 // Método y parámetros
 $method = $_SERVER["REQUEST_METHOD"];
-$input  = json_decode(file_get_contents("php://input")); // 👈 usamos objeto
-$id     = $_GET["id"] ?? null;
-$action = $_GET["action"] ?? null;
+$input  = json_decode(file_get_contents("php://input")); 
+$path = explode("/", trim(parse_url($_SERVER["REQUEST_URI"], PHP_URL_PATH), "/"));
+$action = $path[4] ?? null; 
+$id = $path[5] ?? null;
 
-// Ruteo RESTful
+
 switch ($method) {
     case "GET":
         if ($id) {
@@ -35,27 +36,19 @@ switch ($method) {
 
     case "POST":
         if ($action === "login") {
-            $controller->login($input); // POST /usuario.php?action=login
+            $controller->login($input); 
         } else {
-            $controller->store($input); // POST /usuario.php
+            $controller->store($input); 
         }
         break;
 
     case "PUT":
-        if ($id) {
-            $input->id_usuario = (int)$id;
-            $controller->update($input); // PUT /usuario.php?id=123
-        } elseif (!empty($input->id_usuario)) {
-            $controller->update($input);
-        } else {
-            http_response_code(400);
-            echo json_encode(["success" => false, "message" => "Falta ID"]);
-        }
-        break;
+            if ($id) $controller->update($input); 
+            break;
 
     case "DELETE":
         if ($id) {
-            $controller->delete((int)$id); // DELETE /usuario.php?id=123
+            $controller->delete((int)$id); 
         } else {
             http_response_code(400);
             echo json_encode(["success" => false, "message" => "Falta ID"]);

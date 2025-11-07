@@ -23,21 +23,26 @@ async function handleLogin(e) {
   };
 
   try {
-      const res = await fetch("../Backend/Apis/usuario.php?action=login", {
+      const res = await fetch(`../Backend/Apis/usuario.php/login/`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify(data),
     });
 
     const result = await res.json().catch(() => ({})); // por si no hay body válido
-
+    // aca hay que poner el if de pago_inicial === "si"
     if (res.ok && result.success) {
+      
       const usuario = result.usuario;
       localStorage.setItem("usuario", JSON.stringify(usuario));
+      if(usuario.pago_inicial === 'no'){
+        window.location.href = "pagoInicial.html"
+      } else {
       window.location.href =
         usuario.rol === "administrador"
           ? "Backoffice/backoffice.html"
           : "cooperativista.html";
+      }
     } else {
       alert(result.message || "Usuario no encontrado o pendiente de aprobación");
     }
@@ -52,7 +57,8 @@ async function handleLogin(e) {
 async function handleRegisterForm(e) {
   e.preventDefault();
   const form = e.target;
-  const data = {
+  try {
+    const data = {
     nombre: form.querySelector("#nombre").value,
     apellido: form.querySelector("#apellido").value,
     email_cont: form.querySelector("#email_cont").value,
@@ -61,8 +67,7 @@ async function handleRegisterForm(e) {
     password: form.querySelector("#registro-password").value,
   };
 
-  try {
-    const res = await fetch("../Backend/Apis/usuario.php", {
+    const res = await fetch("../Backend/Apis/usuario.php/registro", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -85,20 +90,20 @@ async function handleRegisterForm(e) {
 document.addEventListener("DOMContentLoaded", () => {
   const usuario = JSON.parse(localStorage.getItem("usuario"));
   if (document.getElementById("form-info") && usuario) {
+    cargarEstadoCuenta(usuario.id_usuario);
     cargarInfoPersonal(usuario.id_usuario);
-
     document.getElementById("form-info").addEventListener("submit", actualizarInfoPersonal);
-    document.getElementById("form-horas").addEventListener("submit", registrarHoras);
     document.getElementById("form-pago").addEventListener("submit", registrarPago);
+    document.getElementById("form-horas").addEventListener("submit", registrarHoras);
   }
 });
 
 // === Cargar datos ===
-async function cargarInfoPersonal(idUsuario) {
+async function cargarInfoPersonal(id) {
   try {
-    // llamamos al endpoint RESTful con action=usuario y parametro id (que coopera con el router)
-    const res = await fetch(`../Backend/Apis/cooperativa.php?action=usuario&id=${idUsuario}`);
+    const res = await fetch(`../Backend/Apis/cooperativa.php/usuario/${id}`, { method: "GET" });
     const data = await res.json();
+
     if (data.success && data.data) {
       const u = data.data;
       document.getElementById("nombre").value = u.nombre || "";
@@ -109,7 +114,6 @@ async function cargarInfoPersonal(idUsuario) {
       document.getElementById("telefono").value = u.telefono_cont || "";
       document.getElementById("email").value = u.email_cont || "";
 
-      // asegúrate que los inputs del formulario tengan estos IDs (los usaremos en los submits)
       document.getElementById("horas-id-usuario").value = u.id_usuario || "";
       document.getElementById("pago-id-usuario").value = u.id_usuario || "";
     } else {
@@ -123,22 +127,37 @@ async function cargarInfoPersonal(idUsuario) {
 // === Actualizar perfil ===
 async function actualizarInfoPersonal(e) {
   e.preventDefault();
-
+  const id = document.getElementById("id_usuario").value;
+  
+  if(window.location.href.endsWith("pagoInicial.html")){
+    pagoInicial = "no";
+  } else {
+    pagoInicial = "si";
+  }
+  const pago_inicial = pagoInicial;
+  
+  try {
+    
   const data = {
     id_usuario: document.getElementById("id_usuario").value,
+    nombre: document.getElementById("nombre").value,
+    apellido: document.getElementById("apellido").value,
     usuario_login: document.getElementById("usuario_login").value,
+    id_persona: document.getElementById("id_persona").value,
     telefono_cont: document.getElementById("telefono").value,
     email_cont: document.getElementById("email").value,
+    rol: "cooperativista",
+    estatus: "Al dia",
+    estado: "registrado",
+    pago_inicial: pago_inicial,
   };
 
-  try {
-    const res = await fetch("../Backend/Apis/usuario.php", {
+    const res = await fetch(`../Backend/Apis/usuario.php/actualizarInfo/${id}`, {
       method: "PUT",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
 
-    if (!res.ok) throw new Error(`HTTP ${res.status}`);
     const result = await res.json();
 
     alert(result.message || (result.success ? "Perfil actualizado" : "Error al actualizar"));
@@ -148,32 +167,39 @@ async function actualizarInfoPersonal(e) {
   }
 }
 
+function semana(fecha = new Date()) {
+  const primerDia = new Date(fecha.getFullYear(), 0, 1);
+  const diasPasados = Math.floor((fecha - primerDia) / (24 * 60 * 60 * 1000));
+  return Math.ceil((diasPasados + primerDia.getDay() + 1) / 7);
+}
 
 // === Registrar horas ===
 async function registrarHoras(e) {
   e.preventDefault();
   const form = e.target;
 
-  // tomar el id_usuario del input específico que cargamos
   const idUsuario = document.getElementById("horas-id-usuario")?.value || form["id_usuario"]?.value;
-
-  const fechaVal = form["fecha"] ? form["fecha"].value : null;
-  const semanaIso = fechaVal ? new Date(fechaVal).toISOString().slice(0, 10) : null;
+  const semana = (d => {
+  d = new Date(Date.UTC(d.getFullYear(), d.getMonth(), d.getDate()));
+  d.setUTCDate(d.getUTCDate() + 4 - (d.getUTCDay()||7));
+  return Math.ceil((((d - new Date(Date.UTC(d.getUTCFullYear(),0,1))) / 86400000) + 1)/7);
+})(new Date());
 
   const data = {
     id_usuario: idUsuario,
     horas_cumplidas: form["horas"] ? form["horas"].value : null,
     motivo: form["motivo"] ? form["motivo"].value : null,
-    semana: semanaIso,
+    semana: semana,
     id_registro: null
   };
 
   try {
-    const res = await fetch("../Backend/Apis/cooperativa.php?action=trabajo", {
+    const res = await fetch(`../Backend/Apis/cooperativa.php/trabajo`, {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
     });
+
     const json = await res.json();
     alert(json.message || (json.success ? "Horas registradas" : "Error al registrar horas"));
   } catch (err) {
@@ -186,18 +212,15 @@ async function registrarHoras(e) {
 async function registrarPago(e) {
   e.preventDefault();
   const form = e.target;
-
-  // leemos el input que cargamos
-  const idUsuario = document.getElementById("pago-id-usuario")?.value || form["id_usuario"]?.value;
-
-  const data = {
+  try {
+    const idUsuario = document.getElementById("id_usuario").value;
+    console.log("ID usuario:", idUsuario);
+    const data = {
     id_usuario: idUsuario,
     tipo_pago: form["tipo-pago"] ? form["tipo-pago"].value : null,
     monto: form["monto"] ? form["monto"].value : null,
   };
-
-  try {
-    const res = await fetch("../Backend/Apis/cooperativa.php?action=pago", {
+    const res = await fetch("../Backend/Apis/cooperativa.php/pago", {
       method: "POST",
       headers: { "Content-Type": "application/json" },
       body: JSON.stringify(data),
@@ -207,6 +230,26 @@ async function registrarPago(e) {
   } catch (err) {
     console.error("Error registrar pago:", err);
     alert("Error de red al registrar pago");
+  }
+}
+
+async function cargarEstadoCuenta(id) {
+  try {
+    const resV = await fetch(`../Backend/Apis/cooperativa.php/vivienda/${id}`, { method: "GET" });   
+    const dataV = await resV.json();
+    const v = dataV.data;
+    document.getElementById("direccion").value = `${v.calle || ""} ${v.nro_puerta || ""}${v.nro_apt > 0 ? " - Apto " + v.nro_apt : ""}`;
+    document.getElementById("estado-vivienda").value = v.estado || "";
+
+      const resU = await fetch(`../Backend/Apis/cooperativa.php/usuario/${id}`, { method: "GET" });
+      const dataU = await resU.json();
+      const u = dataU.data;
+      document.getElementById("estatus").value = u.estatus || "";
+    
+      console.warn("Error:", dataV.message);
+    
+  } catch (err) {
+    console.error("Error al cargar estado de cuenta:", err);
   }
 }
 

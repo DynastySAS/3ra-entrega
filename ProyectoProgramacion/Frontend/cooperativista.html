@@ -4,7 +4,6 @@
   <meta charset="UTF-8">
   <title>Panel de Usuario</title>
   <link rel="stylesheet" href="estilos.css">
-  <script src="Js/script.js" defer></script>
 </head>
 <body>
   <header>
@@ -15,6 +14,7 @@
     <button class="btn" onclick="mostrar('info-personal')">Información personal</button>
     <button class="btn" onclick="mostrar('hs-semanales')">Actualizar Horas Trabajadas</button>
     <button class="btn" onclick="mostrar('subir-comprobante-pago')">Subir comprobante de pago</button>
+    <button class="btn" onclick="mostrar('estado-cuenta')">Estado de cuenta</button>
   </nav>
 
   <main>
@@ -49,8 +49,6 @@
   <h2>Horas trabajadas</h2>
   <form id="form-horas">
     <input type="hidden" id="horas-id-usuario" name="id_usuario">
-    <label for="fecha-hs">Fecha:</label>
-    <input type="date" id="fecha-hs" name="fecha" required>
 
     <label for="horas">Horas trabajadas:</label>
     <input type="number" id="horas" name="horas" step="0.25" min="0" max="200" required>
@@ -67,16 +65,12 @@
   <form id="form-pago">
     <input type="hidden" id="pago-id-usuario" name="id_usuario">
 
-    <label for="fecha-pago">Fecha:</label>
-    <input type="date" id="fecha-pago" name="fecha" required>
-
     <label for="monto">Monto:</label>
     <input type="number" id="monto" name="monto" step="0.01" min="0" required>
 
     <label class="label" for="tipo-pago">Tipo de pago:</label>
     <select id="tipo-pago" name="tipo-pago">
       <option value="mensual">Mensual</option>
-      <option value="inicial">Inicial</option>
       <option value="compensatorio">Compensatorio</option>
     </select>
 
@@ -84,16 +78,44 @@
   </form>
 </div>
 
+<div id="subir-comprobante-pago" class="content">
+  <h2>Información del pago</h2>
+  <form id="form-pago">
+    <input type="hidden" id="pago-id-usuario" name="id_usuario">
+
+    <label for="monto">Monto:</label>
+    <input type="number" id="monto" name="monto" step="0.01" min="0" required>
+
+    <label class="label" for="tipo-pago">Tipo de pago:</label>
+    <select id="tipo-pago" name="tipo-pago">
+      <option value="mensual">Mensual</option>
+      <option value="compensatorio">Compensatorio</option>
+    </select>
+
+    <button class="btn" type="submit">Guardar</button>
+  </form>
+</div>
     
-    
-    <div class="content">
-      <h2>Información completa</h2>
-      <div id="datos-usuario"></div>
-    </div>
+    <div id="estado-cuenta" class="content">
+      <h2>Estado de cuenta</h2>
+        <form id="form-estado">
+          <h1>Vivienda</h1>
+          <label for="direccion">Direccion:</label>
+          <input type="text" readonly id="direccion" name="direccion">
+          
+          <label for="estado-vivienda">Estado de la vivienda:</label>
+          <input type="text" readonly id="estado-vivienda" name="estado-vivienda">
+
+          <h1>Estado cuenta</h1>
+          <label for="estatus">Estatus:</label>
+          <input type="text" readonly id="estatus" name="estatus">
+        </form>
+    </div>  
   </main>
 
   <footer>
     &copy; 2025 MiTecho - Todos los derechos reservados.
   </footer>
 </body>
+<script src="Js/script.js" defer></script>
 </html>

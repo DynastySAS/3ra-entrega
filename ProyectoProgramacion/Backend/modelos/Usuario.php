@@ -1,7 +1,7 @@
 <?php
 class Usuario {
     private $conn;
-    private $table = "usuario";
+    private $table_name = "usuario";
 
     public $id_usuario;
     public $id_persona;
@@ -11,8 +11,10 @@ class Usuario {
     public $telefono_cont;
     public $estado;
     public $usuario_login;
+    public $estatus;
     public $rol;
     public $contrasena;
+    public $pago_inicial;
 
     public function __construct($db) {
         $this->conn = $db;
@@ -20,9 +22,8 @@ class Usuario {
 
     // Obtener todos los usuarios
     public function getAll() {
-    $sql = "SELECT id_usuario, id_persona, nombre, apellido, email_cont, telefono_cont, 
-                   usuario_login, estado, rol 
-            FROM $this->table";
+    $sql = "SELECT * 
+            FROM $this->table_name";
     $result = $this->conn->query($sql);
     $usuarios = [];
     while ($row = $result->fetch_assoc()) {
@@ -36,8 +37,8 @@ class Usuario {
     public function getById($id) {
         $stmt = $this->conn->prepare(
             "SELECT id_usuario, id_persona, nombre, apellido, email_cont, telefono_cont, 
-                    usuario_login, estado, rol 
-             FROM $this->table WHERE id_usuario=?"
+                    usuario_login, estado, estatus, rol, pago_inicial 
+             FROM $this->table_name WHERE id_usuario=?"
         );
         $stmt->bind_param("i", $id);
         $stmt->execute();
@@ -47,17 +48,19 @@ class Usuario {
     // Crear usuario
     public function create($data) {
         $stmt = $this->conn->prepare(
-            "INSERT INTO $this->table 
-             (id_persona, nombre, apellido, email_cont, usuario_login, contrasena, estado, rol)
-             VALUES (?, ?, ?, ?, ?, ?, ?, ?)"
+            "INSERT INTO $this->table_name 
+             (id_persona, nombre, apellido, email_cont, usuario_login, contrasena, estado, estatus, rol, pago_inicial)
+             VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?)"
         );
 
         $hash = password_hash($data->password, PASSWORD_BCRYPT);
         $estado_default = 'solicitado';
         $rol_default = $data->rol ?? 'cooperativista';
+        $pago_inicial_default = 'no';
+        $estatus_default = 'Al dia';
 
         $stmt->bind_param(
-            "isssssss",
+            "isssssssss",
             $data->id_persona,
             $data->nombre,
             $data->apellido,
@@ -65,7 +68,9 @@ class Usuario {
             $data->usuario_login,
             $hash,
             $estado_default,
-            $rol_default
+            $estatus_default,
+            $rol_default,
+            $pago_inicial_default
         );
 
         return $stmt->execute();
@@ -74,7 +79,7 @@ class Usuario {
     // Login
     public function login($identificador, $password) {
         $stmt = $this->conn->prepare(
-            "SELECT * FROM $this->table WHERE usuario_login=? OR email_cont=?"
+            "SELECT * FROM $this->table_name WHERE usuario_login=? OR email_cont=?"
         );
         $stmt->bind_param("ss", $identificador, $identificador);
         $stmt->execute();
@@ -93,17 +98,24 @@ class Usuario {
     // Actualizar usuario (admin/backoffice)
     public function update($data) {
     $stmt = $this->conn->prepare(
-        "UPDATE $this->table 
-         SET email_cont=?, telefono_cont=?, usuario_login=? 
+        "UPDATE $this->table_name 
+         SET id_persona=?, nombre=?, apellido=?, email_cont=?, telefono_cont=?, usuario_login=?, estado=?, estatus=?, rol=?, pago_inicial=? 
          WHERE id_usuario=?"
     );
 
-    $email    = $data->email_cont ?? '';
-    $telefono = $data->telefono_cont ?? '';
-    $usuario  = $data->usuario_login ?? '';
-    $id       = $data->id_usuario;
-
-    $stmt->bind_param("sssi", $email, $telefono, $usuario, $id);
+    $stmt->bind_param("isssssssssi", 
+    $data->id_persona,
+    $data->nombre,
+    $data->apellido,
+    $data->email_cont,
+    $data->telefono_cont,
+    $data->usuario_login,
+    $data->estado,
+    $data->estatus,
+    $data->rol,
+    $data->pago_inicial,
+    $data->id_usuario
+        );
 
     if (!$stmt->execute()) {
         error_log("Error update usuario: " . $stmt->error);
@@ -119,15 +131,14 @@ class Usuario {
             $stmt->bind_param("i", $id);
             return $stmt->execute();
         }
-    
-public function getPendientes() {
-    $sql = "SELECT id_usuario, id_persona, nombre, apellido, email_cont, telefono_cont, 
-                   usuario_login, estado, rol 
-            FROM $this->table
-            WHERE estado = 'solicitado'";
-    $result = $this->conn->query($sql);
-    return $result ? $result->fetch_all(MYSQLI_ASSOC) : [];
-}   
+
+    public function pagoInicial($id) {
+            $sql = "UPDATE usuario SET pago_inicial = 'si' WHERE id_usuario = ?";
+            $stmt = $this->conn->prepare($sql);
+            $stmt->bind_param("i", $id);
+            return $stmt->execute();
+        }    
+      
     
     // Borrar usuario
 public function delete($id) {

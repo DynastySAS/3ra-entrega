@@ -22,14 +22,13 @@ class PagoController {
      
     public function index() {
         $pago = new Pago($this->db);
-        $data = $pago->getPendientes();
+        $data = $pago->getAll();
         echo json_encode(["success" => true, "data" => $data]);
     }
-
      
     public function show($id) {
         $pago = new Pago($this->db);
-        $data = $pago->getById($id);
+        $data = $pago->show($id);
         if ($data) {
             echo json_encode(["success" => true, "data" => $data]);
         } else {
@@ -38,15 +37,33 @@ class PagoController {
         }
     }
 
-     
-    public function aprobar($id) {
+    public function getByUser($id) {
+    $pago = new Pago($this->db);
+    $data = $pago->getByUser($id);
+    echo json_encode($data);
+    }   
+
+    public function update($input) {
+        if (empty($input->id_pago)) { 
+            http_response_code(400);
+            echo json_encode(["success" => false, "message" => "Falta ID del pago"]);
+            return;
+        }
         $pago = new Pago($this->db);
-        $ok = $pago->aprobar($id);
+        $ok = $pago->update($input);
+
         echo json_encode([
             "success" => $ok,
-            "message" => $ok ? "Pago aprobado" : "Error al aprobar pago"
+            "message" => $ok ? "Pago actualizado" : "Error al actualizar pago"
         ]);
     }
+
+    public function tienePagosSolicitados($id_usuario) {
+    $pago = new Pago($this->db);
+    return $pago->tienePagosSolicitados($id_usuario);
+}
+
+
 
     public function delete($id) {
         $pago = new Pago($this->db);

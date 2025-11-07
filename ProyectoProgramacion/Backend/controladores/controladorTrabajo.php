@@ -7,7 +7,7 @@ class TrabajoController {
 
     public function index() {
         $trabajo = new Trabajo($this->db);
-        $result = $trabajo->read();
+        $result = $trabajo->getAll();
         $data = [];
         while ($row = $result->fetch_assoc()) {
             $data[] = $row;
@@ -16,21 +16,21 @@ class TrabajoController {
     }
 
     public function store($input) {
-        if (!$input->id_usuario || !$input->horas_cumplidas) {
-            http_response_code(400);
-            echo json_encode(["success" => false, "message" => "Datos incompletos"]);
-            return;
-        }
-
-        $trabajo = new Trabajo($this->db);
-        $trabajo->id_usuario      = $input->id_usuario;
-        $trabajo->horas_cumplidas = $input->horas_cumplidas;
-        $trabajo->motivo          = $input->motivo ?? null;
-        $trabajo->semana          = $input->semana ?? null;
-
-        $ok = $trabajo->create();
-        echo json_encode(["success" => $ok, "message" => $ok ? "Horas registradas" : "Error al registrar horas"]);
+    if (empty($input->id_usuario) || $input->horas_cumplidas === null) {
+        http_response_code(400);
+        echo json_encode(["success" => false, "message" => "Datos incompletos"]);
+        return;
     }
+
+    $trabajo = new Trabajo($this->db);
+    $trabajo->id_usuario      = $input->id_usuario;
+    $trabajo->horas_cumplidas = $input->horas_cumplidas;
+    $trabajo->motivo          = $input->motivo ?? null;
+    $trabajo->semana          = $input->semana ?? null;
+
+    $ok = $trabajo->create();
+    echo json_encode(["success" => $ok, "message" => $ok ? "Horas registradas" : "Error al registrar horas"]);
+}
 
     public function update($input) {
         $trabajo = new Trabajo($this->db);
@@ -44,9 +44,12 @@ class TrabajoController {
         echo json_encode(["success" => $trabajo->update()]);
     }
 
-    public function delete($input) {
+    public function delete($id) {
         $trabajo = new Trabajo($this->db);
-        $trabajo->id_registro = $input->id_registro;
-        echo json_encode(["success" => $trabajo->delete()]);
+        $ok = $trabajo->delete($id);
+        echo json_encode([
+            "success" => $ok,
+            "message" => $ok ? "Trabajo eliminado" : "Error al eliminar trabajo"
+        ]);
     }
 }
