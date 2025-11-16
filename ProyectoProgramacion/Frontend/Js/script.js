@@ -235,16 +235,18 @@ async function registrarPago(e) {
 
 async function cargarEstadoCuenta(id) {
   try {
+    const resU = await fetch(`../Backend/Apis/cooperativa.php/usuario/${id}`, { method: "GET" });
+      const dataU = await resU.json();
+      const u = dataU.data;
+      document.getElementById("estatus").value = u.estatus || "";
+        
     const resV = await fetch(`../Backend/Apis/cooperativa.php/vivienda/${id}`, { method: "GET" });   
     const dataV = await resV.json();
     const v = dataV.data;
     document.getElementById("direccion").value = `${v.calle || ""} ${v.nro_puerta || ""}${v.nro_apt > 0 ? " - Apto " + v.nro_apt : ""}`;
     document.getElementById("estado-vivienda").value = v.estado || "";
 
-      const resU = await fetch(`../Backend/Apis/cooperativa.php/usuario/${id}`, { method: "GET" });
-      const dataU = await resU.json();
-      const u = dataU.data;
-      document.getElementById("estatus").value = u.estatus || "";
+      
     
       console.warn("Error:", dataV.message);
     

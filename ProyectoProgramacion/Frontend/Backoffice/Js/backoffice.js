@@ -99,7 +99,7 @@ async function listarPagos() {
           <input type="number" readonly name="id_pago" id="id_pago" value="${pago.id_pago}">
 
           <label>Monto:</label>
-          <input type="number" name="monto" id="monto" value="${pago.monto}">
+          <input type="number" name="monto" id="monto" min="0" value="${pago.monto}">
 
           <label>Id Usuario:</label>
           <input type="number" readonly name="id_usuario" id="id_usuario" value="${pago.id_usuario}">
@@ -163,7 +163,7 @@ async function listarViviendas() {
           <input type="number" name="nro_apt" id="nro_apt" value="${vivienda.nro_apt}">
 
           <label>Id Usuario:</label>
-          <input type="number" name="id_usuario" id="id_usuario" value="${vivienda.id_usuario}">
+          <input type="number" min="0" step="1" name="id_usuario" id="id_usuario" value="${vivienda.id_usuario}">
 
           <label>Estado:</label>
             <select id="estado-vivienda" name="estado-vivienda" value="${vivienda.estado}">
@@ -209,10 +209,10 @@ async function listarTrabajo() {
           <input type="number" readonly name="id_registro" id="id_registro" value="${trabajo.id_registro}">
 
           <label>Semana:</label>
-          <input type="number" name="semana" id="semana" value="${trabajo.semana}">
+          <input type="number" min="0" step="1" max="52" name="semana" id="semana" value="${trabajo.semana}">
 
           <label>Horas cumplidas:</label>
-          <input type="number" name="horas-cumplidas" id="horas-cumplidas" value="${trabajo.horas_cumplidas}">
+          <input type="number" name="horas-cumplidas" step="0.25" min="0" max="200" id="horas-cumplidas" value="${trabajo.horas_cumplidas}">
 
           <label>Fecha de registro:</label>
           <input type="date" name="fch-registro" id="fch-registro" value="${trabajo.fch_registro}">
