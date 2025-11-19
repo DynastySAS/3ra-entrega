@@ -33,7 +33,7 @@ CREATE TABLE `pago` (
   `id_pago` int(11) NOT NULL,
   `tipo_pago` enum('mensual','inicial','compensatorio') NOT NULL,
   `monto` decimal(10,2) NOT NULL,
-  `fecha` date NOT NULL DEFAULT current_timestamp(),
+  `fecha` DATETIME NOT NULL DEFAULT current_timestamp(),
   `fecha_aprobado` date DEFAULT NULL,
   `id_usuario` int(11) NOT NULL,
   `estado` enum('solicitado','aprobado') NOT NULL DEFAULT 'solicitado'
@@ -80,7 +80,7 @@ CREATE TABLE `trabajo` (
   `id_registro` int(11) NOT NULL,
   `semana` int(11) DEFAULT NULL,
   `horas_cumplidas` decimal(5,2) DEFAULT NULL,
-  `fch_registro` date NOT NULL DEFAULT current_timestamp(),
+  `fch_registro` DATETIME NOT NULL DEFAULT current_timestamp(),
   `id_usuario` int(11) NOT NULL,
   `motivo` varchar(255) DEFAULT NULL
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;
