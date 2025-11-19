@@ -1,9 +1,9 @@
 <?php
 class Database {
-    private $host = "mysql_cooperativa";
+    private $host = "192.168.5.50";
     private $user = "sebastian.vazquez";
     private $pass = "56632237";
-    private $db   = "cooperativa_viviendas";
+    private $db   = "MiTecho-BD";
     public $conn;
 
     public function getConnection() {
@@ -17,5 +17,6 @@ class Database {
         return $this->conn;
     }
 }
+
 
 
