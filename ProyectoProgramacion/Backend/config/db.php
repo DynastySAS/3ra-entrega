@@ -7,16 +7,23 @@ class Database {
     public $conn;
 
     public function getConnection() {
-        $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->db, 3306);
+        try {
+            $dsn = "mysql:host={$this->host};dbname={$this->db};charset=utf8mb4";
 
-        if ($this->conn->connect_error) {
-            die("Error de conexión: " . $this->conn->connect_error);
+            $this->conn = new PDO($dsn, $this->user, $this->pass);
+
+            // Opciones recomendadas
+            $this->conn->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+            $this->conn->setAttribute(PDO::ATTR_DEFAULT_FETCH_MODE, PDO::FETCH_ASSOC);
+
+            return $this->conn;
+
+        } catch (PDOException $e) {
+            die("Error de conexión PDO: " . $e->getMessage());
         }
-
-        $this->conn->set_charset("utf8mb4");
-        return $this->conn;
     }
 }
+
 
 
 
