@@ -1,8 +1,8 @@
 <?php
 class Database {
     private $host = "localhost";
-    private $user = "sebastian.vazquez";
-    private $pass = "56632237";
+    private $user = "root";
+    private $pass = "root123";
     private $db   = "cooperativa_viviendas";
     public $conn;
 
@@ -17,6 +17,7 @@ class Database {
         return $this->conn;
     }
 }
+
 
 
 
