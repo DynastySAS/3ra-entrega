@@ -7,7 +7,7 @@ class Database {
     public $conn;
 
     public function getConnection() {
-        $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->db);
+        $this->conn = new mysqli($this->host, $this->user, $this->pass, $this->db, 3306);
 
         if ($this->conn->connect_error) {
             die("Error de conexión: " . $this->conn->connect_error);
@@ -17,6 +17,7 @@ class Database {
         return $this->conn;
     }
 }
+
 
 
 
